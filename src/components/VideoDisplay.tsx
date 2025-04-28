@@ -12,21 +12,21 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   
   // Güncellenmiş embed URL'leri - "watch?v=" yerine "embed/" formatını kullanıyoruz
   const countryVideos: Record<string, string> = {
-    turkey: "https://youtube/embed/_jjIKMl90iM",
-    usa: "https://youtube/embed/AlmK64-o8d4",
-    france: "https://youtube/embed/j9q3NLqUvxI",
-    japan: "https://youtube/embed/WLIv7HnZ_fE",
-    brazil: "https://youtube/embed/yeukgKerfqM",
-    germany: "https://youtube/embed/SEo8EOmxEuY",
-    italy: "https://youtube/embed/qDaLSX16VTM",
-    spain: "https://youtube/embed/PNK0HCyUx8Y",
-    uk: "https://youtube/embed/Gc1B-vGEXko",
-    china: "https://youtube/embed/aLzKNCc2vwY",
-    russia: "https://youtube/embed/6PucIvOn964",
-    canada: "https://youtube/embed/YQrTIC7T-mw",
-    australia: "https://youtube/embed/f0PvMmTAUAQ",
-    india: "https://youtube/embed/35npVaFGHMY",
-    egypt: "https://youtube/embed/BapSQFJPMM0",
+    turkey: "https://www.youtube.com/embed/z7yqtW4Isec?si=EH4iFlc84RwUxVru",
+    usa: "https://www.youtube.com/embed/AlmK64-o8d4?si=RdlEJiopUoWvIg_T",
+    france: "https://www.youtube.com/embed/j9q3NLqUvxI?si=qOe403VQ5aWxWIxH",
+    japan: "https://www.youtube.com/embed/WLIv7HnZ_fE?si=tJh1yPFyrR05zKxh",
+    brazil: "https://www.youtube.com/embed/sW1SWAN6zlQ?si=PgWu1NczVltjta93",
+    germany: "https://www.youtube.com/embed/SEo8EOmxEuY?si=YAwf_TKn0Q3kmZ1t",
+    italy: "https://www.youtube.com/embed/qDaLSX16VTM?si=vvD7yyBSN0FdP8Ez",
+    spain: "https://www.youtube.com/embed/PNK0HCyUx8Y?si=Oz9n0sSrtOVr8qE9",
+    uk: "https://www.youtube.com/embed/Gc1B-vGEXko?si=WscxfwgvhCyvM7vF",
+    china: "https://www.youtube.com/embed/aLzKNCc2vwY?si=ACgw1YtC7h5oWU2U",
+    russia: "https://www.youtube.com/embed/6PucIvOn964?si=murwiIBx6G9KEMta",
+    canada: "https://www.youtube.com/embed/YQrTIC7T-mw?si=1f-kEqVLYvzvfPe8",
+    australia: "https://www.youtube.com/embed/f0PvMmTAUAQ?si=DqeuaC2X22VcJjnO",
+    india: "https://www.youtube.com/embed/35npVaFGHMY?si=f-GBvRtFBVWfVq_N",
+    egypt: "https://www.youtube.com/embed/BapSQFJPMM0?si=bAzxZvDf_al-9wPd",
   };
   
   // Varsayılan video URL'i
