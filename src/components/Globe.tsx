@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { toast } from "sonner";
 import countryData from '../data/CountryData';
 
@@ -134,7 +134,7 @@ const Globe: React.FC<GlobeProps> = ({ onCountrySelect }) => {
       
       // If we have an intersection, trigger the country selection
       if (intersects.length > 0) {
-        const selectedObject = intersects[0].object;
+        const selectedObject = intersects[0].object as THREE.Mesh;
         const countryId = selectedObject.userData.countryId;
         
         // Highlight the selected marker
