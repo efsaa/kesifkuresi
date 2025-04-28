@@ -10,7 +10,7 @@ interface VideoDisplayProps {
 const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   // Expanded video URLs for more countries
   const countryVideos: Record<string, string> = {
-    turkey: "https://www.youtube.com/embed/74Q93P6Y0k",
+    turkey: "https://www.youtube.com/embed/74Q93P6Y0kk",
     usa: "https://www.youtube.com/embed/WSY4gGHGIr8",
     france: "https://www.youtube.com/embed/AQ6GmpMu5L8",
     japan: "https://www.youtube.com/embed/cS-hFKC_RKI",

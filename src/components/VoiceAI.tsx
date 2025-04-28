@@ -1,9 +1,10 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Mic, MicOff, Volume2 } from "lucide-react";
 
 interface VoiceAIProps {
   onSpeak: (text: string) => void;
@@ -16,7 +17,57 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
     question: string;
     answer: string;
   }[]>([]);
+  const [isListening, setIsListening] = useState(false);
   const conversationContainerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'tr-TR';
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setQuestion(transcript);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        toast.error('Ses algılamada bir hata oluştu.');
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      toast.error('Ses tanıma bu tarayıcıda desteklenmiyor.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+      toast.info('Sizi dinliyorum...');
+    }
+  };
 
   const handleAsk = () => {
     if (!question.trim()) {
@@ -103,14 +154,24 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleAsk();
             }}
-            disabled={isSpeaking}
+            disabled={isSpeaking || isListening}
+            className="flex-grow"
           />
+          <Button 
+            onClick={toggleListening}
+            variant="outline"
+            className={`${isListening ? 'bg-red-500/20' : 'bg-primary/10'}`}
+            disabled={isSpeaking}
+            title={isListening ? "Ses Algılamayı Durdur" : "Sesli Soru Sor"}
+          >
+            {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+          </Button>
           <Button 
             onClick={handleAsk}
             disabled={isSpeaking || !question.trim()}
             className={isSpeaking ? "opacity-50" : ""}
           >
-            Sor
+            {isSpeaking ? <Volume2 size={18} className="animate-pulse" /> : "Sor"}
           </Button>
         </div>
       </CardFooter>
