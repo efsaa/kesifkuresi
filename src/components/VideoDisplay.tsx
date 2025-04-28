@@ -12,25 +12,25 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   
   // Güncellenmiş embed URL'leri - "watch?v=" yerine "embed/" formatını kullanıyoruz
   const countryVideos: Record<string, string> = {
-    turkey: "https://youtube/embed/_jjIKMl90iM?si=JZlCikCMRjMlnysL",
-    usa: "https://youtube/embed/AlmK64-o8d4?si=3usg5wjJnxGh4Mdu",
+    turkey: "https://youtube/embed/_jjIKMl90iMJZlCikCMRjMlnysL",
+    usa: "https://youtube/embed/AlmK64-o8d43usg5wjJnxGh4Mdu",
     france: "https://www.youtube.com/embed/AQ6GmpMu5L8",
     japan: "https://www.youtube.com/embed/cS-hFKC_RKI",
-    brazil: "https://youtube/embed/yeukgKerfqM?si=hUCdM8jMTS_ZT_je",
-    germany: "https://youtube/embed/SEo8EOmxEuY?si=7sFGUALBLTUhteoV",
-    italy: "https://youtube/embed/qDaLSX16VTM?si=e_H2F705On8vWM8-",
-    spain: "https://youtube/embed/QIiet7Mv0lk?si=Ro-INiYfMobMflej",
+    brazil: "https://youtube/embed/yeukgKerfqMhUCdM8jMTS_ZT_je",
+    germany: "https://youtube/embed/SEo8EOmxEuY7sFGUALBLTUhteoV",
+    italy: "https://youtube/embed/qDaLSX16VTMe_H2F705On8vWM8-",
+    spain: "https://youtube/embed/QIiet7Mv0lkRo-INiYfMobMflej",
     uk: "https://www.youtube.com/embed/X8zLJlU_-60",
-    china: "https://youtube/embed/aLzKNCc2vwY?si=kjbOKGy0WzDvbr2-",
-    russia: "https://youtube/embed/6PucIvOn964?si=3NW3s185H2CoZX2N",
-    canada: "https://youtube/embed/YQrTIC7T-mw?si=4WM8fhbC8u1PhxIC",
-    australia: "https://youtube/embed/h0yYXjvHV3I?si=2n9cEkBzcfbFa8fY",
-    india: "https://youtube/embed/35npVaFGHMY?si=MWRcyzbyxp1-lG9B",
-    egypt: "https://youtube/embed/BapSQFJPMM0?si=A05ln-yvqKU94WBn",
+    china: "https://youtube/embed/aLzKNCc2vwYkjbOKGy0WzDvbr2-",
+    russia: "https://youtube/embed/6PucIvOn9643NW3s185H2CoZX2N",
+    canada: "https://youtube/embed/YQrTIC7T-mw4WM8fhbC8u1PhxIC",
+    australia: "https://youtube/embed/h0yYXjvHV3I2n9cEkBzcfbFa8fY",
+    india: "https://youtube/embed/35npVaFGHMYMWRcyzbyxp1-lG9B",
+    egypt: "https://youtube/embed/BapSQFJPMM0A05ln-yvqKU94WBn",
   };
   
   // Varsayılan video URL'i
-  const defaultVideo = "https://youtube/embed/QQYgCxu988s?si=w4Eg7pBnOzJOaPpm";
+  const defaultVideo = "https://youtube/embed/QQYgCxu988sw4Eg7pBnOzJOaPpm";
   
   const videoSrc = country ? countryVideos[country.id] || defaultVideo : defaultVideo;
   
