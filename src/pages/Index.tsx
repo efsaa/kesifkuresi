@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import Globe from '../components/Globe';
 import CountryInfo from '../components/CountryInfo';
@@ -77,12 +76,9 @@ const Index = () => {
       <header className="absolute top-0 left-0 w-full z-10 p-4 flex justify-between items-center">
         <div className="flex items-center">
           <h1 className="text-2xl md:text-3xl font-bold text-white text-glow">
-            Discovery Globe
+            Keşif Küresi
           </h1>
-          <p className="ml-3 opacity-70 hidden md:block">Touch and Discover</p>
-        </div>
-        <div className="animate-pulse-glow rounded-full px-4 py-1 text-xs md:text-sm bg-secondary/20 border border-secondary/40">
-          Yapay Zeka Rehber Aktif
+          <p className="ml-3 opacity-70 hidden md:block">Dokun ve Keşfet</p>
         </div>
       </header>
 
@@ -93,7 +89,6 @@ const Index = () => {
 
       {/* Content panels */}
       <div className="absolute bottom-8 right-8 z-10 flex gap-4 flex-col lg:flex-row items-end lg:items-start max-h-[70vh] overflow-y-auto no-scrollbar">
-        {/* Only render country info if a country is selected */}
         {selectedCountry && (
           <CountryInfo 
             country={selectedCountry} 
@@ -102,7 +97,6 @@ const Index = () => {
           />
         )}
         
-        {/* Voice AI and Video sections */}
         <div className="flex flex-col gap-4">
           <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
           <VideoDisplay country={selectedCountry} />
