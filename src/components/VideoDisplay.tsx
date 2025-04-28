@@ -12,21 +12,21 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   
   // Güncellenmiş embed URL'leri - "watch?v=" yerine "embed/" formatını kullanıyoruz
   const countryVideos: Record<string, string> = {
-    turkey: "https://youtu.be/_jjIKMl90iM?si=JZlCikCMRjMlnysL",
-    usa: "https://youtu.be/AlmK64-o8d4?si=3usg5wjJnxGh4Mdu",
+    turkey: "https://youtube/embed/_jjIKMl90iM?si=JZlCikCMRjMlnysL",
+    usa: "https://youtube/embed/AlmK64-o8d4?si=3usg5wjJnxGh4Mdu",
     france: "https://www.youtube.com/embed/AQ6GmpMu5L8",
     japan: "https://www.youtube.com/embed/cS-hFKC_RKI",
-    brazil: "https://youtu.be/yeukgKerfqM?si=hUCdM8jMTS_ZT_je",
-    germany: "https://youtu.be/SEo8EOmxEuY?si=7sFGUALBLTUhteoV",
-    italy: "https://youtu.be/qDaLSX16VTM?si=e_H2F705On8vWM8-",
-    spain: "https://youtu.be/QIiet7Mv0lk?si=Ro-INiYfMobMflej",
+    brazil: "https://youtube/embed/yeukgKerfqM?si=hUCdM8jMTS_ZT_je",
+    germany: "https://youtube/embed/SEo8EOmxEuY?si=7sFGUALBLTUhteoV",
+    italy: "https://youtube/embed/qDaLSX16VTM?si=e_H2F705On8vWM8-",
+    spain: "https://youtube/embed/QIiet7Mv0lk?si=Ro-INiYfMobMflej",
     uk: "https://www.youtube.com/embed/X8zLJlU_-60",
-    china: "https://youtu.be/aLzKNCc2vwY?si=kjbOKGy0WzDvbr2-",
-    russia: "https://youtu.be/6PucIvOn964?si=3NW3s185H2CoZX2N",
-    canada: "https://youtu.be/YQrTIC7T-mw?si=4WM8fhbC8u1PhxIC",
-    australia: "https://youtu.be/h0yYXjvHV3I?si=2n9cEkBzcfbFa8fY",
-    india: "https://youtu.be/35npVaFGHMY?si=MWRcyzbyxp1-lG9B",
-    egypt: "https://youtu.be/BapSQFJPMM0?si=A05ln-yvqKU94WBn",
+    china: "https://youtube/embed/aLzKNCc2vwY?si=kjbOKGy0WzDvbr2-",
+    russia: "https://youtube/embed/6PucIvOn964?si=3NW3s185H2CoZX2N",
+    canada: "https://youtube/embed/YQrTIC7T-mw?si=4WM8fhbC8u1PhxIC",
+    australia: "https://youtube/embed/h0yYXjvHV3I?si=2n9cEkBzcfbFa8fY",
+    india: "https://youtube/embed/35npVaFGHMY?si=MWRcyzbyxp1-lG9B",
+    egypt: "https://youtube/embed/BapSQFJPMM0?si=A05ln-yvqKU94WBn",
   };
   
   // Varsayılan video URL'i
