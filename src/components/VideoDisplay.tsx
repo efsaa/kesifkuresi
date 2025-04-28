@@ -12,7 +12,7 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   
   // Güncellenmiş embed URL'leri - "watch?v=" yerine "embed/" formatını kullanıyoruz
   const countryVideos: Record<string, string> = {
-    turkey: "https://www.youtube.com/embed/z7yqtW4Isec?si=EH4iFlc84RwUxVru",
+    turkey: "https://www.youtube.com/embed/UQAReYr9wko?si=I5LvFo0MU3kbdC-i",
     usa: "https://www.youtube.com/embed/AlmK64-o8d4?si=RdlEJiopUoWvIg_T",
     france: "https://www.youtube.com/embed/j9q3NLqUvxI?si=qOe403VQ5aWxWIxH",
     japan: "https://www.youtube.com/embed/WLIv7HnZ_fE?si=tJh1yPFyrR05zKxh",
@@ -26,7 +26,7 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
     canada: "https://www.youtube.com/embed/YQrTIC7T-mw?si=1f-kEqVLYvzvfPe8",
     australia: "https://www.youtube.com/embed/f0PvMmTAUAQ?si=DqeuaC2X22VcJjnO",
     india: "https://www.youtube.com/embed/35npVaFGHMY?si=f-GBvRtFBVWfVq_N",
-    egypt: "https://www.youtube.com/embed/BapSQFJPMM0?si=bAzxZvDf_al-9wPd",
+    egypt: "https://www.youtube.com/embed/h9GaP1k6KXk?si=xA1-ad9O6UEh0pmC",
   };
   
   // Varsayılan video URL'i
