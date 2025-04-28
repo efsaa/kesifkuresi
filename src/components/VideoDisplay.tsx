@@ -30,7 +30,7 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   };
   
   // Varsayılan video URL'i
-  const defaultVideo = "<iframe width="560" height="315" src="https://www.youtube.com/embed/QQYgCxu988s?si=A3oY2Gi0zLgZYlWd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>";
+  const defaultVideo = "https://www.youtube.com/embed/QQYgCxu988s?si=A3oY2Gi0zLgZYlWd";
   
   const videoSrc = country ? countryVideos[country.id] || defaultVideo : defaultVideo;
   
