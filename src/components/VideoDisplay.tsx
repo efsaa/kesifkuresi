@@ -30,7 +30,7 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   };
   
   // Varsayılan video URL'i
-  const defaultVideo = "https://youtu.be/QQYgCxu988s?si=w4Eg7pBnOzJOaPpm";
+  const defaultVideo = "https://youtube/embed/QQYgCxu988s?si=w4Eg7pBnOzJOaPpm";
   
   const videoSrc = country ? countryVideos[country.id] || defaultVideo : defaultVideo;
   
