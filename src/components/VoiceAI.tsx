@@ -18,6 +18,7 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
     answer: string;
   }[]>([]);
   const [isListening, setIsListening] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const conversationContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
@@ -69,41 +70,131 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
     }
   };
 
-  const handleAsk = () => {
+  const fetchFromWikipedia = async (searchTerm: string, language = 'tr'): Promise<string> => {
+    try {
+      // First, search for the article
+      const searchUrl = `https://${language}.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json`;
+      const searchResponse = await fetch(searchUrl);
+      const searchData = await searchResponse.json();
+      
+      if (!searchData.query.search.length) {
+        return `Wikipedia'da "${searchTerm}" ile ilgili bilgi bulunamadı.`;
+      }
+      
+      // Get the page ID of the first result
+      const pageId = searchData.query.search[0].pageid;
+      
+      // Get the extract (summary) of the article
+      const extractUrl = `https://${language}.wikipedia.org/w/api.php?origin=*&action=query&prop=extracts&exintro&explaintext&pageids=${pageId}&format=json`;
+      const extractResponse = await fetch(extractUrl);
+      const extractData = await extractResponse.json();
+      
+      const extract = extractData.query.pages[pageId].extract;
+      
+      // Limit the length of the extract
+      if (extract.length > 500) {
+        return extract.substring(0, 500) + '...';
+      }
+      
+      return extract;
+    } catch (error) {
+      console.error('Wikipedia API error:', error);
+      return 'Wikipedia\'dan bilgi alınırken bir hata oluştu.';
+    }
+  };
+
+  const handleAsk = async () => {
     if (!question.trim()) {
       toast.error('Lütfen bir soru sorunuz.');
       return;
     }
 
-    // Simulated AI response - in a real app, you would connect to an AI API
-    // This is a simple mock response system
-    let answer = '';
-    const lowerQuestion = question.toLowerCase();
+    setIsLoading(true);
+
+    // Prepare the conversation with the question first
+    const newConversationItem = { 
+      question, 
+      answer: 'Yanıt aranıyor...' 
+    };
     
-    if (lowerQuestion.includes('merhaba') || lowerQuestion.includes('selam')) {
-      answer = 'Merhaba! Size nasıl yardımcı olabilirim?';
-    } else if (lowerQuestion.includes('adın ne') || lowerQuestion.includes('kimsin')) {
-      answer = 'Ben Discovery Globe yapay zekasıyım. Dünya hakkında size bilgi vermek için buradayım.';
-    } else if (lowerQuestion.includes('türkiye')) {
-      answer = 'Türkiye, Avrupa ve Asya kıtalarının kesişiminde yer alan benzersiz bir ülkedir. Zengin tarihi, çeşitli kültürü ve nefes kesici manzaraları ile bilinir. Harika yemekleri, misafirperver insanları ve tarihi yerleri ile turistler için popüler bir destinasyondur.';
-    } else if (lowerQuestion.includes('amerika') || lowerQuestion.includes('abd')) {
-      answer = 'Amerika Birleşik Devletleri, 50 eyalet ve bir federal bölgeden oluşan bir ülkedir. Dünyanın en büyük ekonomisine ve en güçlü ordusuna sahiptir. Özgürlük, demokrasi ve fırsatlar ülkesi olarak bilinir.';
-    } else if (lowerQuestion.includes('fransa')) {
-      answer = 'Fransa, Batı Avrupa\'da yer alan bir ülkedir. Sanat, moda, mutfak ve kültür açısından dünyaca ünlüdür. Paris\'teki Eyfel Kulesi, Louvre Müzesi ve Notre Dame Katedrali gibi ikonik yerlerle bilinir.';
-    } else if (lowerQuestion.includes('japonya')) {
-      answer = 'Japonya, Doğu Asya\'da bulunan bir ada ülkesidir. İleri teknolojisi, geleneksel kültürü ve eşsiz mutfağı ile tanınır. Fuji Dağı, kiraz çiçekleri ve suşi gibi kültürel sembolleri dünyaca meşhurdur.';
-    } else if (lowerQuestion.includes('brezilya')) {
-      answer = 'Brezilya, Güney Amerika\'nın en büyük ülkesidir. Canlı kültürü, Amazon Yağmur Ormanları, futbol tutkusu ve renkli karnavalları ile bilinir. Rio de Janeiro\'daki Kurtarıcı İsa heykeli, dünyanın en tanınmış anıtlarından biridir.';
-    } else {
-      answer = 'Bu konu hakkında detaylı bilgim yok. Dünya üzerindeki ülkeler hakkında daha fazla bilgi için lütfen haritada bir ülkeye tıklayın veya bana belirli bir ülke hakkında soru sorun.';
-    }
-    
-    // Update conversation
-    const newConversationItem = { question, answer };
-    setConversation([...conversation, newConversationItem]);
+    // Add to conversation immediately to show loading state
+    setConversation(prev => [...prev, newConversationItem]);
     
     // Clear input
     setQuestion('');
+
+    // Process the question to determine the intent
+    const lowerQuestion = question.toLowerCase();
+    let answer = '';
+    
+    // Basic greeting patterns
+    if (lowerQuestion.includes('merhaba') || lowerQuestion.includes('selam')) {
+      answer = 'Merhaba! Size nasıl yardımcı olabilirim?';
+    } 
+    else if (lowerQuestion.includes('adın ne') || lowerQuestion.includes('kimsin')) {
+      answer = 'Ben Keşif Küresi yapay zekasıyım. Dünya hakkında size bilgi vermek için buradayım.';
+    }
+    // Country information pattern
+    else if (
+      lowerQuestion.includes('türkiye') || 
+      lowerQuestion.includes('amerika') || 
+      lowerQuestion.includes('abd') ||
+      lowerQuestion.includes('fransa') ||
+      lowerQuestion.includes('japonya') ||
+      lowerQuestion.includes('brezilya') ||
+      lowerQuestion.includes('çin') ||
+      lowerQuestion.includes('almanya') ||
+      lowerQuestion.includes('italya') ||
+      lowerQuestion.includes('ispanya') ||
+      lowerQuestion.includes('ingiltere') ||
+      lowerQuestion.includes('rusya') ||
+      lowerQuestion.includes('kanada') ||
+      lowerQuestion.includes('avustralya') ||
+      lowerQuestion.includes('hindistan') ||
+      lowerQuestion.includes('mısır')
+    ) {
+      // Determine which country to search for
+      let country = '';
+      if (lowerQuestion.includes('türkiye')) country = 'Türkiye';
+      else if (lowerQuestion.includes('amerika') || lowerQuestion.includes('abd')) country = 'Amerika Birleşik Devletleri';
+      else if (lowerQuestion.includes('fransa')) country = 'Fransa';
+      else if (lowerQuestion.includes('japonya')) country = 'Japonya';
+      else if (lowerQuestion.includes('brezilya')) country = 'Brezilya';
+      else if (lowerQuestion.includes('çin')) country = 'Çin Halk Cumhuriyeti';
+      else if (lowerQuestion.includes('almanya')) country = 'Almanya';
+      else if (lowerQuestion.includes('italya')) country = 'İtalya';
+      else if (lowerQuestion.includes('ispanya')) country = 'İspanya';
+      else if (lowerQuestion.includes('ingiltere')) country = 'Birleşik Krallık';
+      else if (lowerQuestion.includes('rusya')) country = 'Rusya';
+      else if (lowerQuestion.includes('kanada')) country = 'Kanada';
+      else if (lowerQuestion.includes('avustralya')) country = 'Avustralya';
+      else if (lowerQuestion.includes('hindistan')) country = 'Hindistan';
+      else if (lowerQuestion.includes('mısır')) country = 'Mısır';
+      
+      // Fetch from Wikipedia API
+      answer = await fetchFromWikipedia(country);
+    } else {
+      // For any other query, try to extract a topic and search for it
+      // Remove common question words and phrases
+      const cleanedQuestion = lowerQuestion
+        .replace(/ne(dir)?|nerede(dir)?|nasıl(dır)?|kim(dir)?|bana anlat|hakkında bilgi ver|bilgi ver|bilgi|hakkında/g, '')
+        .trim();
+        
+      if (cleanedQuestion.length > 2) {
+        answer = await fetchFromWikipedia(cleanedQuestion);
+      } else {
+        answer = 'Bu konu hakkında detaylı bilgim yok. Lütfen daha açık bir soru sorunuz veya haritada bir ülkeye tıklayınız.';
+      }
+    }
+    
+    // Update conversation with the actual answer
+    setConversation(prev => 
+      prev.map((item, idx) => 
+        idx === prev.length - 1 ? { ...item, answer } : item
+      )
+    );
+    
+    setIsLoading(false);
     
     // Speak the answer
     onSpeak(answer);
@@ -138,7 +229,16 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
                   <p className="text-sm text-foreground">{item.question}</p>
                 </div>
                 <div className="bg-secondary/20 p-3 rounded-lg rounded-bl-none">
-                  <p className="text-sm text-foreground">{item.answer}</p>
+                  {item.answer === 'Yanıt aranıyor...' ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-pulse h-2 w-2 bg-primary rounded-full"></div>
+                      <div className="animate-pulse h-2 w-2 bg-primary rounded-full delay-150"></div>
+                      <div className="animate-pulse h-2 w-2 bg-primary rounded-full delay-300"></div>
+                      <span className="text-sm text-muted-foreground ml-1">Yanıt aranıyor...</span>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-foreground">{item.answer}</p>
+                  )}
                 </div>
               </div>
             ))
@@ -152,26 +252,31 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Bir soru sorun..."
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAsk();
+              if (e.key === 'Enter' && !isLoading) handleAsk();
             }}
-            disabled={isSpeaking || isListening}
+            disabled={isSpeaking || isListening || isLoading}
             className="flex-grow"
           />
           <Button 
             onClick={toggleListening}
             variant="outline"
             className={`${isListening ? 'bg-red-500/20' : 'bg-primary/10'}`}
-            disabled={isSpeaking}
+            disabled={isSpeaking || isLoading}
             title={isListening ? "Ses Algılamayı Durdur" : "Sesli Soru Sor"}
           >
             {isListening ? <MicOff size={18} /> : <Mic size={18} />}
           </Button>
           <Button 
             onClick={handleAsk}
-            disabled={isSpeaking || !question.trim()}
-            className={isSpeaking ? "opacity-50" : ""}
+            disabled={isSpeaking || !question.trim() || isLoading}
+            className={isLoading || isSpeaking ? "opacity-50" : ""}
           >
-            {isSpeaking ? <Volume2 size={18} className="animate-pulse" /> : "Sor"}
+            {isLoading ? 
+              <div className="flex items-center">
+                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full mr-2"></div>
+              </div> : 
+              isSpeaking ? <Volume2 size={18} className="animate-pulse" /> : "Sor"
+            }
           </Button>
         </div>
       </CardFooter>
