@@ -70,6 +70,7 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
     }
   };
 
+  // Fetch summary data from Wikipedia
   const fetchFromWikipedia = async (searchTerm: string, language = 'tr'): Promise<string> => {
     try {
       // First, search for the article
@@ -91,9 +92,9 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
       
       const extract = extractData.query.pages[pageId].extract;
       
-      // Limit the length of the extract
-      if (extract.length > 500) {
-        return extract.substring(0, 500) + '...';
+      // Return a longer excerpt for more detailed information
+      if (extract.length > 800) {
+        return extract.substring(0, 800) + '...';
       }
       
       return extract;
@@ -101,6 +102,142 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
       console.error('Wikipedia API error:', error);
       return 'Wikipedia\'dan bilgi alınırken bir hata oluştu.';
     }
+  };
+
+  // Fetch weather data for a city (simplified mock function)
+  const fetchWeatherData = async (city: string): Promise<string> => {
+    const cities: Record<string, {temp: number, condition: string}> = {
+      'istanbul': {temp: 22, condition: 'güneşli'},
+      'ankara': {temp: 18, condition: 'parçalı bulutlu'},
+      'izmir': {temp: 25, condition: 'açık'},
+      'antalya': {temp: 28, condition: 'güneşli'},
+      'bursa': {temp: 20, condition: 'yağmurlu'},
+      'adana': {temp: 30, condition: 'açık'},
+      'konya': {temp: 17, condition: 'bulutlu'},
+      'paris': {temp: 16, condition: 'yağmurlu'},
+      'londra': {temp: 14, condition: 'sisli'},
+      'new york': {temp: 18, condition: 'parçalı bulutlu'},
+      'tokyo': {temp: 20, condition: 'yağmurlu'},
+      'pekin': {temp: 19, condition: 'bulutlu'},
+    };
+    
+    const lowerCaseCity = city.toLowerCase();
+    if (cities[lowerCaseCity]) {
+      const { temp, condition } = cities[lowerCaseCity];
+      return `${city} için hava durumu: ${temp}°C ve ${condition}.`;
+    }
+    
+    return `${city} için hava durumu bilgisi bulunamadı.`;
+  };
+
+  // Get current time and date
+  const getCurrentTimeAndDate = (): string => {
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return now.toLocaleDateString('tr-TR', options);
+  };
+
+  // Enhanced answer function to determine the best source based on the question
+  const getEnhancedAnswer = async (userQuestion: string): Promise<string> => {
+    const lowerQuestion = userQuestion.toLowerCase();
+    
+    // Handle greetings and basic questions
+    if (lowerQuestion.includes('merhaba') || lowerQuestion.includes('selam')) {
+      return 'Merhaba! Size nasıl yardımcı olabilirim?';
+    } 
+    else if (lowerQuestion.includes('adın ne') || lowerQuestion.includes('kimsin')) {
+      return 'Ben Keşif Küresi yapay zekasıyım. Dünya hakkında size bilgi vermek için buradayım.';
+    }
+    else if (lowerQuestion.includes('nasılsın') || lowerQuestion.includes('iyi misin')) {
+      return 'Teşekkür ederim, ben bir yapay zeka olduğum için duygularım yok ama size yardımcı olmak için hazırım!';
+    }
+    else if (lowerQuestion.includes('saat kaç') || lowerQuestion.includes('tarih') || lowerQuestion.includes('bugün günlerden')) {
+      return `Şu an: ${getCurrentTimeAndDate()}`;
+    }
+    
+    // Check for weather queries
+    const weatherKeywords = ['hava durumu', 'hava nasıl', 'yağmur', 'sıcaklık'];
+    const hasWeatherQuestion = weatherKeywords.some(keyword => lowerQuestion.includes(keyword));
+    
+    if (hasWeatherQuestion) {
+      // Extract city name from question
+      const cities = ['istanbul', 'ankara', 'izmir', 'antalya', 'bursa', 'adana', 'konya', 'paris', 'londra', 'new york', 'tokyo', 'pekin'];
+      const foundCity = cities.find(city => lowerQuestion.includes(city.toLowerCase()));
+      
+      if (foundCity) {
+        return await fetchWeatherData(foundCity);
+      }
+    }
+    
+    // Check for country information
+    const countries = {
+      'türkiye': 'Türkiye',
+      'amerika': 'Amerika Birleşik Devletleri',
+      'abd': 'Amerika Birleşik Devletleri',
+      'fransa': 'Fransa',
+      'japonya': 'Japonya',
+      'brezilya': 'Brezilya',
+      'çin': 'Çin Halk Cumhuriyeti',
+      'almanya': 'Almanya',
+      'italya': 'İtalya',
+      'ispanya': 'İspanya',
+      'ingiltere': 'Birleşik Krallık',
+      'rusya': 'Rusya',
+      'kanada': 'Kanada',
+      'avustralya': 'Avustralya',
+      'hindistan': 'Hindistan',
+      'mısır': 'Mısır'
+    };
+    
+    // Check if the question mentions a country
+    let country = '';
+    for (const [key, value] of Object.entries(countries)) {
+      if (lowerQuestion.includes(key)) {
+        country = value;
+        break;
+      }
+    }
+    
+    if (country) {
+      return await fetchFromWikipedia(country);
+    }
+    
+    // For any other query, try to extract meaningful terms
+    // Remove common question words and phrases
+    const questionWords = [
+      'ne', 'nedir', 'nerede', 'nereden', 'nasıl', 'kim', 'kimin', 'hangi', 
+      'kaç', 'ne zaman', 'niçin', 'neden', 'hakkında', 'anlat', 'bilgi ver'
+    ];
+    
+    let cleanedQuestion = lowerQuestion;
+    questionWords.forEach(word => {
+      cleanedQuestion = cleanedQuestion.replace(new RegExp(`\\b${word}\\b`, 'g'), '');
+    });
+    
+    cleanedQuestion = cleanedQuestion.trim();
+    
+    if (cleanedQuestion.length > 2) {
+      // Try to find the most relevant topics in the question
+      let searchTerms = cleanedQuestion.split(' ')
+        .filter(term => term.length > 3)
+        .slice(0, 2)
+        .join(' ');
+      
+      if (searchTerms) {
+        return await fetchFromWikipedia(searchTerms);
+      } else {
+        return await fetchFromWikipedia(cleanedQuestion);
+      }
+    }
+    
+    return 'Bu konu hakkında detaylı bilgim yok. Lütfen daha açık bir soru sorunuz veya haritada bir ülkeye tıklayınız.';
   };
 
   const handleAsk = async () => {
@@ -122,70 +259,9 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
     
     // Clear input
     setQuestion('');
-
-    // Process the question to determine the intent
-    const lowerQuestion = question.toLowerCase();
-    let answer = '';
     
-    // Basic greeting patterns
-    if (lowerQuestion.includes('merhaba') || lowerQuestion.includes('selam')) {
-      answer = 'Merhaba! Size nasıl yardımcı olabilirim?';
-    } 
-    else if (lowerQuestion.includes('adın ne') || lowerQuestion.includes('kimsin')) {
-      answer = 'Ben Keşif Küresi yapay zekasıyım. Dünya hakkında size bilgi vermek için buradayım.';
-    }
-    // Country information pattern
-    else if (
-      lowerQuestion.includes('türkiye') || 
-      lowerQuestion.includes('amerika') || 
-      lowerQuestion.includes('abd') ||
-      lowerQuestion.includes('fransa') ||
-      lowerQuestion.includes('japonya') ||
-      lowerQuestion.includes('brezilya') ||
-      lowerQuestion.includes('çin') ||
-      lowerQuestion.includes('almanya') ||
-      lowerQuestion.includes('italya') ||
-      lowerQuestion.includes('ispanya') ||
-      lowerQuestion.includes('ingiltere') ||
-      lowerQuestion.includes('rusya') ||
-      lowerQuestion.includes('kanada') ||
-      lowerQuestion.includes('avustralya') ||
-      lowerQuestion.includes('hindistan') ||
-      lowerQuestion.includes('mısır')
-    ) {
-      // Determine which country to search for
-      let country = '';
-      if (lowerQuestion.includes('türkiye')) country = 'Türkiye';
-      else if (lowerQuestion.includes('amerika') || lowerQuestion.includes('abd')) country = 'Amerika Birleşik Devletleri';
-      else if (lowerQuestion.includes('fransa')) country = 'Fransa';
-      else if (lowerQuestion.includes('japonya')) country = 'Japonya';
-      else if (lowerQuestion.includes('brezilya')) country = 'Brezilya';
-      else if (lowerQuestion.includes('çin')) country = 'Çin Halk Cumhuriyeti';
-      else if (lowerQuestion.includes('almanya')) country = 'Almanya';
-      else if (lowerQuestion.includes('italya')) country = 'İtalya';
-      else if (lowerQuestion.includes('ispanya')) country = 'İspanya';
-      else if (lowerQuestion.includes('ingiltere')) country = 'Birleşik Krallık';
-      else if (lowerQuestion.includes('rusya')) country = 'Rusya';
-      else if (lowerQuestion.includes('kanada')) country = 'Kanada';
-      else if (lowerQuestion.includes('avustralya')) country = 'Avustralya';
-      else if (lowerQuestion.includes('hindistan')) country = 'Hindistan';
-      else if (lowerQuestion.includes('mısır')) country = 'Mısır';
-      
-      // Fetch from Wikipedia API
-      answer = await fetchFromWikipedia(country);
-    } else {
-      // For any other query, try to extract a topic and search for it
-      // Remove common question words and phrases
-      const cleanedQuestion = lowerQuestion
-        .replace(/ne(dir)?|nerede(dir)?|nasıl(dır)?|kim(dir)?|bana anlat|hakkında bilgi ver|bilgi ver|bilgi|hakkında/g, '')
-        .trim();
-        
-      if (cleanedQuestion.length > 2) {
-        answer = await fetchFromWikipedia(cleanedQuestion);
-      } else {
-        answer = 'Bu konu hakkında detaylı bilgim yok. Lütfen daha açık bir soru sorunuz veya haritada bir ülkeye tıklayınız.';
-      }
-    }
+    // Get enhanced answer from multiple sources
+    const answer = await getEnhancedAnswer(newConversationItem.question);
     
     // Update conversation with the actual answer
     setConversation(prev => 
@@ -220,7 +296,7 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
           {conversation.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">
               <p>Merhaba! Dünya hakkında bir sorunuz var mı?</p>
-              <p className="text-sm mt-2">Örneğin: "Türkiye hakkında bilgi verir misin?"</p>
+              <p className="text-sm mt-2">Örneğin: "Türkiye hakkında bilgi verir misin?" veya "İstanbul'da hava nasıl?"</p>
             </div>
           ) : (
             conversation.map((item, index) => (
