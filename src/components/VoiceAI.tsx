@@ -95,7 +95,7 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
       // Get enhanced answer from multiple knowledge sources
       const answer = await getEnhancedAnswer(newConversationItem.question);
       
-      // Update conversation with the actual answer
+      // Update conversation with the actual answer - show full answer
       setConversation(prev => 
         prev.map((item, idx) => 
           idx === prev.length - 1 ? { ...item, answer } : item
