@@ -12,7 +12,7 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
   const [videoError, setVideoError] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   
-  // Güncellenmiş embed URL'leri - "watch?v=" yerine "embed/" formatını kullanıyoruz
+  // Updated embed URLs - using "embed/" format
   const countryVideos: Record<string, { url: string, name: string }> = {
     turkey: { url: "https://www.youtube.com/embed/UQAReYr9wko?si=I5LvFo0MU3kbdC-i", name: "Türkiye" },
     usa: { url: "https://www.youtube.com/embed/AlmK64-o8d4?si=RdlEJiopUoWvIg_T", name: "ABD" },
@@ -31,33 +31,46 @@ const VideoDisplay: React.FC<VideoDisplayProps> = ({ country }) => {
     egypt: { url: "https://www.youtube.com/embed/h9GaP1k6KXk?si=xA1-ad9O6UEh0pmC", name: "Mısır" },
   };
   
-  // Varsayılan video URL'i
+  // Default video URL
   const defaultVideo = "https://www.youtube.com/embed/QQYgCxu988s?si=A3oY2Gi0zLgZYlWd";
   
-  // If country is provided, use its video, otherwise use selected or default video
-  const videoSrc = country ? 
-    countryVideos[country.id]?.url || defaultVideo : 
-    selectedVideo || defaultVideo;
+  // Get video source based on selected country or manual selection
+  const getVideoSource = () => {
+    // First priority: selected country
+    if (country && countryVideos[country.id]) {
+      return countryVideos[country.id].url;
+    }
+    
+    // Second priority: manually selected video
+    if (selectedVideo) {
+      return selectedVideo;
+    }
+    
+    // Default fallback
+    return defaultVideo;
+  };
   
-  // Video hatalarını yönet
+  const videoSrc = getVideoSource();
+  
+  // Handle video errors
   const handleVideoError = () => {
     setVideoError(true);
   };
 
-  // Video başarıyla yüklendiğinde
+  // Handle successful video load
   const handleVideoLoad = () => {
     setVideoError(false);
   };
 
-  // Handle country button click
+  // Handle country button click to select video
   const handleCountrySelect = (videoUrl: string) => {
     setSelectedVideo(videoUrl);
     setVideoError(false);
   };
 
-  // Get a name for the current video
+  // Get title for current video
   const getVideoTitle = () => {
-    if (country) {
+    if (country && countryVideos[country.id]) {
       return `${country.name} Video Tanıtımı`;
     } 
     

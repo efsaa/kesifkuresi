@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Mic, MicOff, Volume2 } from "lucide-react";
+import { getEnhancedAnswer } from '../services/aiAnswerService';
 
 interface VoiceAIProps {
   onSpeak: (text: string) => void;
@@ -70,176 +71,6 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
     }
   };
 
-  // Fetch summary data from Wikipedia
-  const fetchFromWikipedia = async (searchTerm: string, language = 'tr'): Promise<string> => {
-    try {
-      // First, search for the article
-      const searchUrl = `https://${language}.wikipedia.org/w/api.php?origin=*&action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json`;
-      const searchResponse = await fetch(searchUrl);
-      const searchData = await searchResponse.json();
-      
-      if (!searchData.query.search.length) {
-        return `Wikipedia'da "${searchTerm}" ile ilgili bilgi bulunamadı.`;
-      }
-      
-      // Get the page ID of the first result
-      const pageId = searchData.query.search[0].pageid;
-      
-      // Get the extract (summary) of the article
-      const extractUrl = `https://${language}.wikipedia.org/w/api.php?origin=*&action=query&prop=extracts&exintro&explaintext&pageids=${pageId}&format=json`;
-      const extractResponse = await fetch(extractUrl);
-      const extractData = await extractResponse.json();
-      
-      const extract = extractData.query.pages[pageId].extract;
-      
-      // Return a longer excerpt for more detailed information
-      if (extract.length > 800) {
-        return extract.substring(0, 800) + '...';
-      }
-      
-      return extract;
-    } catch (error) {
-      console.error('Wikipedia API error:', error);
-      return 'Wikipedia\'dan bilgi alınırken bir hata oluştu.';
-    }
-  };
-
-  // Fetch weather data for a city (simplified mock function)
-  const fetchWeatherData = async (city: string): Promise<string> => {
-    const cities: Record<string, {temp: number, condition: string}> = {
-      'istanbul': {temp: 22, condition: 'güneşli'},
-      'ankara': {temp: 18, condition: 'parçalı bulutlu'},
-      'izmir': {temp: 25, condition: 'açık'},
-      'antalya': {temp: 28, condition: 'güneşli'},
-      'bursa': {temp: 20, condition: 'yağmurlu'},
-      'adana': {temp: 30, condition: 'açık'},
-      'konya': {temp: 17, condition: 'bulutlu'},
-      'paris': {temp: 16, condition: 'yağmurlu'},
-      'londra': {temp: 14, condition: 'sisli'},
-      'new york': {temp: 18, condition: 'parçalı bulutlu'},
-      'tokyo': {temp: 20, condition: 'yağmurlu'},
-      'pekin': {temp: 19, condition: 'bulutlu'},
-    };
-    
-    const lowerCaseCity = city.toLowerCase();
-    if (cities[lowerCaseCity]) {
-      const { temp, condition } = cities[lowerCaseCity];
-      return `${city} için hava durumu: ${temp}°C ve ${condition}.`;
-    }
-    
-    return `${city} için hava durumu bilgisi bulunamadı.`;
-  };
-
-  // Get current time and date
-  const getCurrentTimeAndDate = (): string => {
-    const now = new Date();
-    const options: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return now.toLocaleDateString('tr-TR', options);
-  };
-
-  // Enhanced answer function to determine the best source based on the question
-  const getEnhancedAnswer = async (userQuestion: string): Promise<string> => {
-    const lowerQuestion = userQuestion.toLowerCase();
-    
-    // Handle greetings and basic questions
-    if (lowerQuestion.includes('merhaba') || lowerQuestion.includes('selam')) {
-      return 'Merhaba! Size nasıl yardımcı olabilirim?';
-    } 
-    else if (lowerQuestion.includes('adın ne') || lowerQuestion.includes('kimsin')) {
-      return 'Ben Keşif Küresi yapay zekasıyım. Dünya hakkında size bilgi vermek için buradayım.';
-    }
-    else if (lowerQuestion.includes('nasılsın') || lowerQuestion.includes('iyi misin')) {
-      return 'Teşekkür ederim, ben bir yapay zeka olduğum için duygularım yok ama size yardımcı olmak için hazırım!';
-    }
-    else if (lowerQuestion.includes('saat kaç') || lowerQuestion.includes('tarih') || lowerQuestion.includes('bugün günlerden')) {
-      return `Şu an: ${getCurrentTimeAndDate()}`;
-    }
-    
-    // Check for weather queries
-    const weatherKeywords = ['hava durumu', 'hava nasıl', 'yağmur', 'sıcaklık'];
-    const hasWeatherQuestion = weatherKeywords.some(keyword => lowerQuestion.includes(keyword));
-    
-    if (hasWeatherQuestion) {
-      // Extract city name from question
-      const cities = ['istanbul', 'ankara', 'izmir', 'antalya', 'bursa', 'adana', 'konya', 'paris', 'londra', 'new york', 'tokyo', 'pekin'];
-      const foundCity = cities.find(city => lowerQuestion.includes(city.toLowerCase()));
-      
-      if (foundCity) {
-        return await fetchWeatherData(foundCity);
-      }
-    }
-    
-    // Check for country information
-    const countries = {
-      'türkiye': 'Türkiye',
-      'amerika': 'Amerika Birleşik Devletleri',
-      'abd': 'Amerika Birleşik Devletleri',
-      'fransa': 'Fransa',
-      'japonya': 'Japonya',
-      'brezilya': 'Brezilya',
-      'çin': 'Çin Halk Cumhuriyeti',
-      'almanya': 'Almanya',
-      'italya': 'İtalya',
-      'ispanya': 'İspanya',
-      'ingiltere': 'Birleşik Krallık',
-      'rusya': 'Rusya',
-      'kanada': 'Kanada',
-      'avustralya': 'Avustralya',
-      'hindistan': 'Hindistan',
-      'mısır': 'Mısır'
-    };
-    
-    // Check if the question mentions a country
-    let country = '';
-    for (const [key, value] of Object.entries(countries)) {
-      if (lowerQuestion.includes(key)) {
-        country = value;
-        break;
-      }
-    }
-    
-    if (country) {
-      return await fetchFromWikipedia(country);
-    }
-    
-    // For any other query, try to extract meaningful terms
-    // Remove common question words and phrases
-    const questionWords = [
-      'ne', 'nedir', 'nerede', 'nereden', 'nasıl', 'kim', 'kimin', 'hangi', 
-      'kaç', 'ne zaman', 'niçin', 'neden', 'hakkında', 'anlat', 'bilgi ver'
-    ];
-    
-    let cleanedQuestion = lowerQuestion;
-    questionWords.forEach(word => {
-      cleanedQuestion = cleanedQuestion.replace(new RegExp(`\\b${word}\\b`, 'g'), '');
-    });
-    
-    cleanedQuestion = cleanedQuestion.trim();
-    
-    if (cleanedQuestion.length > 2) {
-      // Try to find the most relevant topics in the question
-      let searchTerms = cleanedQuestion.split(' ')
-        .filter(term => term.length > 3)
-        .slice(0, 2)
-        .join(' ');
-      
-      if (searchTerms) {
-        return await fetchFromWikipedia(searchTerms);
-      } else {
-        return await fetchFromWikipedia(cleanedQuestion);
-      }
-    }
-    
-    return 'Bu konu hakkında detaylı bilgim yok. Lütfen daha açık bir soru sorunuz veya haritada bir ülkeye tıklayınız.';
-  };
-
   const handleAsk = async () => {
     if (!question.trim()) {
       toast.error('Lütfen bir soru sorunuz.');
@@ -260,27 +91,43 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
     // Clear input
     setQuestion('');
     
-    // Get enhanced answer from multiple sources
-    const answer = await getEnhancedAnswer(newConversationItem.question);
-    
-    // Update conversation with the actual answer
-    setConversation(prev => 
-      prev.map((item, idx) => 
-        idx === prev.length - 1 ? { ...item, answer } : item
-      )
-    );
-    
-    setIsLoading(false);
-    
-    // Speak the answer
-    onSpeak(answer);
-    
-    // Scroll to the bottom of conversation
-    setTimeout(() => {
-      if (conversationContainerRef.current) {
-        conversationContainerRef.current.scrollTop = conversationContainerRef.current.scrollHeight;
-      }
-    }, 100);
+    try {
+      // Get enhanced answer from multiple knowledge sources
+      const answer = await getEnhancedAnswer(newConversationItem.question);
+      
+      // Update conversation with the actual answer
+      setConversation(prev => 
+        prev.map((item, idx) => 
+          idx === prev.length - 1 ? { ...item, answer } : item
+        )
+      );
+      
+      // Speak the answer
+      onSpeak(answer);
+    } catch (error) {
+      console.error('Error getting answer:', error);
+      
+      // Update conversation with error message
+      setConversation(prev => 
+        prev.map((item, idx) => 
+          idx === prev.length - 1 ? { 
+            ...item, 
+            answer: 'Üzgünüm, cevap alırken bir sorun oluştu. Lütfen tekrar deneyin.' 
+          } : item
+        )
+      );
+      
+      toast.error('Cevap alınamadı. Lütfen tekrar deneyin.');
+    } finally {
+      setIsLoading(false);
+      
+      // Scroll to the bottom of conversation
+      setTimeout(() => {
+        if (conversationContainerRef.current) {
+          conversationContainerRef.current.scrollTop = conversationContainerRef.current.scrollHeight;
+        }
+      }, 100);
+    }
   };
 
   return (
@@ -296,7 +143,14 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
           {conversation.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">
               <p>Merhaba! Dünya hakkında bir sorunuz var mı?</p>
-              <p className="text-sm mt-2">Örneğin: "Türkiye hakkında bilgi verir misin?" veya "İstanbul'da hava nasıl?"</p>
+              <p className="text-sm mt-2">Örnekler:</p>
+              <ul className="text-sm mt-1 space-y-1 list-disc list-inside">
+                <li>"Türkiye hakkında bilgi verir misin?"</li>
+                <li>"İstanbul'da hava nasıl?"</li>
+                <li>"Cumhuriyet Bayramı ne zaman?"</li>
+                <li>"İstanbul'un Fethi hangi tarihte oldu?"</li>
+                <li>"Mısır kültürü hakkında bilgi verir misin?"</li>
+              </ul>
             </div>
           ) : (
             conversation.map((item, index) => (
@@ -313,7 +167,7 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
                       <span className="text-sm text-muted-foreground ml-1">Yanıt aranıyor...</span>
                     </div>
                   ) : (
-                    <p className="text-sm text-foreground">{item.answer}</p>
+                    <p className="text-sm text-foreground whitespace-pre-line">{item.answer}</p>
                   )}
                 </div>
               </div>
