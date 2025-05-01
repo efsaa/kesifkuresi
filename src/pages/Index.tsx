@@ -98,11 +98,11 @@ const Index = () => {
 
   return (
     <div 
-      className={`${isMobile ? 'min-h-screen pb-20' : 'min-h-screen'} w-screen bg-background relative`}
+      className="min-h-screen w-screen overflow-hidden bg-background relative"
       onClick={handleBackgroundClick}
     >
       {/* App header */}
-      <header className="sticky top-0 w-full z-10 p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm">
+      <header className="absolute top-0 left-0 w-full z-10 p-4 flex justify-between items-center">
         <div className="flex items-center">
           <h1 className="text-xl md:text-3xl font-bold text-white text-glow">
             Keşif Küresi
@@ -111,46 +111,15 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Content layout based on device */}
-      {isMobile ? (
-        // Mobile layout - stacked vertically and scrollable
-        <div className="flex flex-col w-full gap-6 px-4">
-          {/* Globe container - fixed height for mobile */}
-          <div className="w-full h-[70vh] mb-4">
-            <Globe onCountrySelect={setSelectedCountryId} />
-          </div>
-          
-          {/* VoiceAI component */}
-          <div className="w-full">
-            <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
-          </div>
-          
-          {/* Video display component */}
-          <div className="w-full mb-6">
-            <VideoDisplay country={selectedCountry} />
-          </div>
-          
-          {/* Country info - appears when a country is selected */}
-          {selectedCountry && (
-            <div className="w-full mb-6">
-              <CountryInfo 
-                country={selectedCountry} 
-                onClose={() => setSelectedCountryId(null)}
-                onSpeak={speakText}
-              />
-            </div>
-          )}
-        </div>
-      ) : (
-        // Desktop layout - globe with side panels
-        <>
-          {/* Globe container */}
-          <div className="w-full h-screen">
-            <Globe onCountrySelect={setSelectedCountryId} />
-          </div>
+      {/* Globe container */}
+      <div className="w-full h-screen">
+        <Globe onCountrySelect={setSelectedCountryId} />
+      </div>
 
-          {/* Content panels - positioned absolutely for desktop */}
-          <div className="absolute bottom-8 right-8 z-10 flex flex-col lg:flex-row gap-4 items-end lg:items-start max-h-[70vh] overflow-y-auto no-scrollbar">
+      {/* Content panels - responsive layout */}
+      {isMobile ? (
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-stretch max-h-[80vh] overflow-y-auto">
+          <div className="p-2">
             {selectedCountry && (
               <CountryInfo 
                 country={selectedCountry} 
@@ -158,13 +127,27 @@ const Index = () => {
                 onSpeak={speakText}
               />
             )}
-            
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 mt-4">
               <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
               <VideoDisplay country={selectedCountry} />
             </div>
           </div>
-        </>
+        </div>
+      ) : (
+        <div className="absolute bottom-8 right-8 z-10 flex flex-col lg:flex-row gap-4 items-end lg:items-start max-h-[70vh] overflow-y-auto no-scrollbar">
+          {selectedCountry && (
+            <CountryInfo 
+              country={selectedCountry} 
+              onClose={() => setSelectedCountryId(null)}
+              onSpeak={speakText}
+            />
+          )}
+          
+          <div className="flex flex-col gap-4">
+            <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
+            <VideoDisplay country={selectedCountry} />
+          </div>
+        </div>
       )}
       
       {/* Speaking indicator and stop button */}
