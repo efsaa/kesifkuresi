@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import Globe from '../components/Globe';
 import CountryInfo from '../components/CountryInfo';
@@ -97,11 +98,11 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen w-screen overflow-hidden bg-background relative"
+      className="min-h-screen w-screen bg-background relative"
       onClick={handleBackgroundClick}
     >
       {/* App header */}
-      <header className="absolute top-0 left-0 w-full z-10 p-4 flex justify-between items-center">
+      <header className="sticky top-0 left-0 w-full z-10 p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm">
         <div className="flex items-center">
           <h1 className="text-xl md:text-3xl font-bold text-white text-glow">
             Keşif Küresi
@@ -110,54 +111,49 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Mobile layout - stacked components */}
-      {isMobile ? (
-        <div className="flex flex-col min-h-screen pt-16 pb-4">
-          {/* Globe takes 40% of viewport height on mobile */}
-          <div className="w-full h-[40vh] mb-2">
-            <Globe onCountrySelect={setSelectedCountryId} />
-          </div>
-          
-          {/* Scrollable content area for AI and video */}
-          <div className="flex-1 overflow-y-auto px-2 space-y-4">
-            <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
-            <VideoDisplay country={selectedCountry} />
-            
-            {/* Country info appears at the bottom when selected */}
-            {selectedCountry && (
-              <CountryInfo 
-                country={selectedCountry} 
-                onClose={() => setSelectedCountryId(null)}
-                onSpeak={speakText}
-              />
-            )}
-          </div>
+      {/* All layouts - fully scrollable content */}
+      <div className={`container mx-auto ${isMobile ? 'px-2' : 'px-4'}`}>
+        {/* Globe section - always at top */}
+        <div className={`w-full ${isMobile ? 'h-[50vh]' : 'h-[80vh]'} mb-4`}>
+          <Globe onCountrySelect={setSelectedCountryId} />
         </div>
-      ) : (
-        // Desktop layout - remains the same
-        <>
-          {/* Globe container */}
-          <div className="w-full h-screen">
-            <Globe onCountrySelect={setSelectedCountryId} />
-          </div>
-
-          {/* Content panels for desktop */}
-          <div className="absolute bottom-8 right-8 z-10 flex flex-col lg:flex-row gap-4 items-end lg:items-start max-h-[70vh] overflow-y-auto no-scrollbar">
-            {selectedCountry && (
-              <CountryInfo 
-                country={selectedCountry} 
-                onClose={() => setSelectedCountryId(null)}
-                onSpeak={speakText}
-              />
-            )}
-            
-            <div className="flex flex-col gap-4">
+        
+        {/* Content section - always below globe */}
+        <div className="space-y-4 mb-16">
+          {/* Mobile layout stacks everything vertically */}
+          {isMobile ? (
+            <>
               <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
               <VideoDisplay country={selectedCountry} />
+              
+              {/* Country info appears at the bottom when selected */}
+              {selectedCountry && (
+                <CountryInfo 
+                  country={selectedCountry} 
+                  onClose={() => setSelectedCountryId(null)}
+                  onSpeak={speakText}
+                />
+              )}
+            </>
+          ) : (
+            // Desktop layout places content side by side
+            <div className="flex flex-col lg:flex-row gap-4">
+              {selectedCountry && (
+                <CountryInfo 
+                  country={selectedCountry} 
+                  onClose={() => setSelectedCountryId(null)}
+                  onSpeak={speakText}
+                />
+              )}
+              
+              <div className="flex flex-col gap-4">
+                <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
+                <VideoDisplay country={selectedCountry} />
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </div>
       
       {/* Speaking indicator and stop button */}
       {isSpeaking && (

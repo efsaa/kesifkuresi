@@ -95,7 +95,7 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
       // Get enhanced answer from multiple knowledge sources
       const answer = await getEnhancedAnswer(newConversationItem.question);
       
-      // Update conversation with the actual answer - show full answer without truncation
+      // Update conversation with the actual answer - display the full response
       setConversation(prev => 
         prev.map((item, idx) => 
           idx === prev.length - 1 ? { ...item, answer } : item
@@ -167,7 +167,7 @@ const VoiceAI: React.FC<VoiceAIProps> = ({ onSpeak, isSpeaking }) => {
                       <span className="text-sm text-muted-foreground ml-1">Yanıt aranıyor...</span>
                     </div>
                   ) : (
-                    <p className="text-sm text-foreground whitespace-pre-line">{item.answer}</p>
+                    <p className="text-sm text-foreground break-words">{item.answer}</p>
                   )}
                 </div>
               </div>
