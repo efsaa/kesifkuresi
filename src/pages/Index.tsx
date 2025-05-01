@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import Globe from '../components/Globe';
 import CountryInfo from '../components/CountryInfo';
@@ -111,15 +110,20 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Globe container */}
-      <div className="w-full h-screen">
-        <Globe onCountrySelect={setSelectedCountryId} />
-      </div>
-
-      {/* Content panels - responsive layout */}
+      {/* Mobile layout - stacked components */}
       {isMobile ? (
-        <div className="absolute bottom-0 left-0 right-0 z-10 flex flex-col items-stretch max-h-[80vh] overflow-y-auto">
-          <div className="p-2">
+        <div className="flex flex-col min-h-screen pt-16 pb-4">
+          {/* Globe takes 40% of viewport height on mobile */}
+          <div className="w-full h-[40vh] mb-2">
+            <Globe onCountrySelect={setSelectedCountryId} />
+          </div>
+          
+          {/* Scrollable content area for AI and video */}
+          <div className="flex-1 overflow-y-auto px-2 space-y-4">
+            <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
+            <VideoDisplay country={selectedCountry} />
+            
+            {/* Country info appears at the bottom when selected */}
             {selectedCountry && (
               <CountryInfo 
                 country={selectedCountry} 
@@ -127,27 +131,32 @@ const Index = () => {
                 onSpeak={speakText}
               />
             )}
-            <div className="flex flex-col gap-4 mt-4">
+          </div>
+        </div>
+      ) : (
+        // Desktop layout - remains the same
+        <>
+          {/* Globe container */}
+          <div className="w-full h-screen">
+            <Globe onCountrySelect={setSelectedCountryId} />
+          </div>
+
+          {/* Content panels for desktop */}
+          <div className="absolute bottom-8 right-8 z-10 flex flex-col lg:flex-row gap-4 items-end lg:items-start max-h-[70vh] overflow-y-auto no-scrollbar">
+            {selectedCountry && (
+              <CountryInfo 
+                country={selectedCountry} 
+                onClose={() => setSelectedCountryId(null)}
+                onSpeak={speakText}
+              />
+            )}
+            
+            <div className="flex flex-col gap-4">
               <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
               <VideoDisplay country={selectedCountry} />
             </div>
           </div>
-        </div>
-      ) : (
-        <div className="absolute bottom-8 right-8 z-10 flex flex-col lg:flex-row gap-4 items-end lg:items-start max-h-[70vh] overflow-y-auto no-scrollbar">
-          {selectedCountry && (
-            <CountryInfo 
-              country={selectedCountry} 
-              onClose={() => setSelectedCountryId(null)}
-              onSpeak={speakText}
-            />
-          )}
-          
-          <div className="flex flex-col gap-4">
-            <VoiceAI onSpeak={speakText} isSpeaking={isSpeaking} />
-            <VideoDisplay country={selectedCountry} />
-          </div>
-        </div>
+        </>
       )}
       
       {/* Speaking indicator and stop button */}
