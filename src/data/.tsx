@@ -11,3 +11,12 @@ async function handleQuestion(question) {
 
   return answer;
 }
+
+from transformers import pipeline
+
+pipe = pipeline("question-answering", model="google-bert/bert-large-uncased-whole-word-masking-finetuned-squad")
+
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+
+tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-large-uncased-whole-word-masking-finetuned-squad")
+model = AutoModelForQuestionAnswering.from_pretrained("google-bert/bert-large-uncased-whole-word-masking-finetuned-squad")
